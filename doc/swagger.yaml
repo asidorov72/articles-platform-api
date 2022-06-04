@@ -1,0 +1,58 @@
+openapi: "3.0.3"
+
+servers:
+  - url: "http://articles-platform-api/"
+
+info:
+  title: "Symfony 6 Articles platform RESTful API"
+  description: |-
+    Develop a web-based application for citizens and lawyers.  The application is an online registry for citizens who want to make appointments with lawyers
+  version: "2.0.0"
+
+externalDocs:
+  description: |-
+    Find Symfony documentation here
+  url: "https://symfony.com/doc/current/index.html"
+
+tags:
+  - name: "check"
+    description: "Check endpoints"
+
+paths:
+  # Check
+  '/{index}':
+    get:
+      tags:
+        - "check"
+      parameters:
+        - name: index
+          description: |-
+            Test index page
+          in: path
+          required: false
+          example:
+          schema:
+            type: string
+
+      summary: |-
+        Forbidden index page
+      responses:
+        "404":
+          description: "Successful response. Page not found"
+
+  '/api/healthcheck':
+    get:
+      tags:
+        - "check"
+      summary: |-
+        Checks if the application is accessable
+      responses:
+        "204":
+          description: "Successful response. No content"
+
+        "500":
+          description: "Server Error"
+
+
+
+
