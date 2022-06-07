@@ -21,3 +21,7 @@ healthcheck:
   path: /api/healthcheck
   controller: App\Controller\SystemController::healthcheck
   methods: GET
+login:
+  path: /api/register
+  controller: App\Controller\RegistrationController::register
+  methods: POST

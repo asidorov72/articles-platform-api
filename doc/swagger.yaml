@@ -29,7 +29,7 @@ paths:
           description: |-
             Test index page
           in: path
-          required: false
+          required: true
           example:
           schema:
             type: string
@@ -53,6 +53,16 @@ paths:
         "500":
           description: "Server Error"
 
+  '/api/register':
+    post:
+      tags:
+        - "register"
+      summary: |-
+        Registers new users.
+      responses:
+        "200":
+          description: "Successful response. No content"
 
-
+        "400":
+          description: "Bad request"
 
