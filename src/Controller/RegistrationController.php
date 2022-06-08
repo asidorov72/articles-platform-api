@@ -14,10 +14,16 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use OpenApi\Annotations as OA;
+use App\Security\SecurityTrait;
 
 class RegistrationController extends AbstractController
 {
     const ACTION_NAME = 'register';
+
+    public $monologLogger;
+
+    use SecurityTrait;
+
     /**
      * @Route("/register", name="app_register")
      */
@@ -39,37 +45,22 @@ class RegistrationController extends AbstractController
         Encryptor $encryptor
     ): JsonResponse
     {
-        $params = $request->toArray();
+        $this->monologLogger = $monologLogger;
         $user = new User();
 
-        if (!is_array($params) || !isset($params['data']['email']) || !isset($params['data']['password'])) {
-            $monologLogger->error('Login method. Invalid payload.');
-
-            return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
+        try {
+            $this->validatePayload($request);
+            $this->isBasicAuthenticated($request);
+            $this->decryptAndSaveUserData($request, $encryptor, $userPasswordHasher, $entityManager, $user);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'status' => 'error',
+                'code' => $e->getCode(),
+                'message' => $e->getMessage()
+            ], $e->getCode());
         }
 
-        if (!isset($params['action']) || $params['action'] !== self::ACTION_NAME) {
-            $monologLogger->error('Could not register a new user.');
-
-            return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
-        }
-
-        $decryptedPassword = $encryptor->decrypt($params['data']['password']);
-        $user->setPassword(
-            $userPasswordHasher->hashPassword(
-                   $user,
-                   $decryptedPassword
-                )
-            );
-
-        $decryptedEmail = $encryptor->decrypt($params['data']['email']);
-        $user->setRoles($params['data']['roles']);
-        $user->setEmail($decryptedEmail);
-
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        $msg = 'New user ' . $user->getEmail() . ' was registered successfully.';
+        $msg = 'New user was registered successfully.';
         $monologLogger->info($msg);
 
         return new JsonResponse([
