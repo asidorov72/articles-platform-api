@@ -1,0 +1,41 @@
+@startuml
+title Symfony 6 Articles RESTful API. Endpoints exposed to user
+
+actor "User" as U
+participant "Webapp Articles Platform" as AP
+participant "Articles RESTful API" as API
+participant "Mysql database" as DB
+
+== 1. Index page \n ==
+
+autonumber 1
+U -> API: GET /www.plantuml.com
+API -> U: Return Status Code: 404
+
+== 2. Health Check \n ==
+
+autonumber 1
+U -> API: GET /api/healthcheck
+alt service is up and running
+    API -> U: Return Status Code: 204
+else service is down
+    API -> U: Return Status Code: 500
+end
+
+== 3. Register new user\n ==
+
+autonumber 1
+U -> AP: POST /register
+AP -> API: POST /api/register
+alt save user
+   API -> DB: Accept new user as JSON object and insert it in Database
+   API -> AP:  Return Status Code: 200
+   AP -> U:  Return Status Code: 200
+else error not authorized
+   API -> AP:  Return Status Code: 401
+   AP -> U: Not authorized
+else error bad request
+   API -> AP:  Return Status Code: 400
+   AP -> U: Bad request
+end
+@enduml
